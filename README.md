@@ -1,56 +1,143 @@
-# Welcome to your Expo app 👋
+# 🧪 Maddie — Medical Test Booking Mobile App (MVP)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A modern, production-grade mobile application for discovering, browsing, and booking medical lab tests built with **React Native**, **Expo SDK 57**, and **Expo Router**.
 
-## Get started
+---
 
-1. Install dependencies
+## 📱 Features
 
-   ```bash
-   npm install
-   ```
+- 🔐 **Authentication & Session Management**
+  - User Registration with form validation (Name, Email, Password, Phone).
+  - User Login with JWT access & refresh token handling.
+  - Automatic silent token refresh on 401 Unauthorized responses.
+  - Persistent auth state using `expo-secure-store` (with web `localStorage` fallback).
+  - Auth Navigation Guards protecting private routes.
 
-2. Start the app
+- 🧪 **Lab Tests Discovery**
+  - Interactive test catalog with categorized emoji badges.
+  - Live search filtering by test name and category.
+  - Category filters: *Blood Test, Urine Test, Radiology, Cardiology, Pathology, Microbiology, Other*.
+  - Pull-to-refresh and network error recovery.
 
-   ```bash
-   npx expo start
-   ```
+- 📄 **Test Detail View**
+  - Detailed pricing and report delivery turnaround time.
+  - Special preparation instructions (e.g., fasting requirements).
+  - Availability status indicators.
+  - Direct 1-tap "Book Now" action.
 
-In the output, you'll find options to open the app in a
+- 📅 **3-Step Booking Wizard**
+  - **Step 1: Patient Information** (Name, Age, Gender selection, Special notes).
+  - **Step 2: Schedule Selection** (Interactive date picker for next 14 days + time slot selector).
+  - **Step 3: Review & Confirm** (Summary of patient, appointment date/time, total price).
+  - Instant confirmation screen with booking ID.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- 📋 **My Bookings Management**
+  - List of all upcoming and past test bookings.
+  - Status badges: *Pending ⏳, Confirmed ✅, Completed 🎉, Cancelled ❌*.
+  - Cancellation workflow for pending bookings.
+  - Pull-to-refresh to sync status.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- 👤 **User Profile & Theme Support**
+  - Profile information overview and account stats.
+  - Full Light and Dark mode theme support tailored for healthcare apps.
+  - Secure logout flow.
 
-## Get a fresh project
+---
 
-When you're ready, run:
+## 🛠️ Tech Stack & Architecture
 
-```bash
-npm run reset-project
+- **Framework**: [Expo SDK 57](https://expo.dev) + [React Native 0.86](https://reactnative.dev)
+- **Routing**: [Expo Router v57](https://docs.expo.dev/router/introduction/) (file-based navigation with Typed Routes)
+- **Language**: TypeScript 6 (Strict Type Checking)
+- **State & Context**: React Context API (`AuthContext`)
+- **Secure Storage**: `expo-secure-store`
+- **Linting & Code Quality**: `eslint` with `eslint-config-expo` (Zero warnings/errors)
+
+---
+
+## 📁 Project Structure
+
+```text
+maddie-app/
+├── src/
+│   ├── app/                    # Expo Router screens & layouts
+│   │   ├── (auth)/             # Auth group
+│   │   │   ├── _layout.tsx     # Auth stack navigator
+│   │   │   ├── login.tsx       # Sign In screen
+│   │   │   └── register.tsx    # Sign Up screen
+│   │   ├── (tabs)/             # Main app tab navigator
+│   │   │   ├── _layout.tsx     # Bottom tab bar configuration
+│   │   │   ├── index.tsx       # Home dashboard
+│   │   │   ├── tests.tsx       # Tests catalog & search
+│   │   │   ├── bookings.tsx    # User bookings list & cancellation
+│   │   │   └── profile.tsx     # User profile & logout
+│   │   ├── book/
+│   │   │   ├── _layout.tsx     # Booking flow stack
+│   │   │   └── [id].tsx        # 3-step booking wizard screen
+│   │   ├── test/
+│   │   │   ├── _layout.tsx     # Test detail stack
+│   │   │   └── [id].tsx        # Test detail screen
+│   │   └── _layout.tsx         # Root layout + Auth Navigation Guard + ThemeProvider
+│   ├── components/             # Reusable UI components
+│   ├── constants/
+│   │   └── theme.ts            # Healthcare design tokens (Colors, Spacing, Radius, Shadow)
+│   ├── context/
+│   │   └── AuthContext.tsx     # Global authentication provider & hook
+│   ├── hooks/
+│   │   ├── useTheme.ts         # Hook for theme colors & dark mode detection
+│   │   └── use-color-scheme.ts # Platform color scheme detection
+│   ├── lib/
+│   │   └── api.ts              # Fetch client, auth interceptor & automatic token refresh
+│   ├── services/
+│   │   └── index.ts            # API services (testsService, bookingsService)
+│   └── types/
+│       └── index.ts            # Data models & API contracts
+├── .env.example                # Environment variables template
+├── app.json                    # Expo configuration
+└── package.json
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-### Other setup steps
+## ⚙️ Environment Configuration
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+Create a `.env` file in the root directory (or copy `.env.example`):
 
-## Learn more
+```bash
+# Backend API Base URL
+EXPO_PUBLIC_API_URL=http://localhost:8000/api/v1
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+> **Note for Android Emulator**: Use `http://10.0.2.2:8000/api/v1` to point to `localhost` on your host machine.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+---
 
-## Join the community
+## 🚀 Running the App
 
-Join our community of developers creating universal apps.
+### 1. Install Dependencies
+```bash
+npm install
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### 2. Start Development Server
+```bash
+npx expo start
+```
+
+Press:
+- `a` to open in **Android Emulator / Device**
+- `i` to open in **iOS Simulator**
+- `w` to open in **Web Browser**
+
+### 3. Verification & Quality Checks
+
+Run TypeScript type check:
+```bash
+npx tsc --noEmit
+```
+
+Run Expo lint check:
+```bash
+npx expo lint
+```
+
