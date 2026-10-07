@@ -41,6 +41,14 @@ export type TimeSlot =
   | '14:00-15:00'
   | string;
 
+export interface BookingAddress {
+  street: string;
+  city: string;
+  state?: string;
+  pincode: string;
+  landmark?: string;
+}
+
 export interface Booking {
   _id: string;
   user: { _id: string; name: string; email: string };
@@ -48,6 +56,8 @@ export interface Booking {
   patientName: string;
   patientAge: number;
   patientGender: PatientGender;
+  patientPhone?: string;
+  address: BookingAddress | string;
   appointmentDate: string;
   timeSlot: TimeSlot;
   totalAmount: number;
@@ -62,10 +72,12 @@ export interface CreateBookingPayload {
   patientName: string;
   patientAge: number;
   patientGender: PatientGender;
+  address: BookingAddress;
   appointmentDate: string; // ISO string
   timeSlot: TimeSlot;
   notes?: string;
 }
+
 
 // ─── Auth Types ───────────────────────────────────────────────────────────────
 export type UserRole = 'user' | 'admin' | 'lab_staff';

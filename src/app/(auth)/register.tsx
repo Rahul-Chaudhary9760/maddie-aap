@@ -16,7 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ApiError } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/hooks/useTheme';
-import { Radius, Spacing } from '@/constants/theme';
+import { Radius, Shadow, Spacing } from '@/constants/theme';
 
 type FieldErrors = {
   name?: string;
@@ -87,18 +87,18 @@ export default function RegisterScreen() {
         >
           {/* Header */}
           <View style={styles.header}>
-            <View style={[styles.logoIcon, { backgroundColor: colors.primaryLight }]}>
+            <View style={[styles.logoIcon, { backgroundColor: colors.primaryLight }, Shadow.primaryGlow]}>
               <Text style={styles.logoEmoji}>🧪</Text>
             </View>
-            <Text style={[styles.appName, { color: colors.primary }]}>Maddie</Text>
-            <Text style={[styles.title, { color: colors.text }]}>Create account</Text>
+            <Text style={[styles.appName, { color: colors.primary }]}>MADDIE HEALTH</Text>
+            <Text style={[styles.title, { color: colors.text }]}>Create Account</Text>
             <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-              Book medical tests at your convenience
+              Join thousands booking lab tests with free home sample pickup
             </Text>
           </View>
 
-          {/* Form */}
-          <View style={styles.form}>
+          {/* Form Card */}
+          <View style={[styles.formCard, { backgroundColor: colors.card, borderColor: colors.border }, Shadow.md]}>
             {errors.general && (
               <View style={[styles.errorBanner, { backgroundColor: colors.errorLight }]}>
                 <Text style={[styles.errorBannerText, { color: colors.error }]}>
@@ -111,9 +111,12 @@ export default function RegisterScreen() {
             <View style={styles.field}>
               <Text style={[styles.label, { color: colors.text }]}>Full Name</Text>
               <TextInput
-                style={[styles.input, { backgroundColor: colors.inputBg, color: colors.text, borderColor: errors.name ? colors.error : colors.border }]}
+                style={[
+                  styles.input,
+                  { backgroundColor: colors.inputBg, color: colors.text, borderColor: errors.name ? colors.error : colors.border },
+                ]}
                 placeholder="Rahul Sharma"
-                placeholderTextColor={colors.textSecondary}
+                placeholderTextColor={colors.textMuted}
                 value={name}
                 onChangeText={(t) => { setName(t); clearError('name'); }}
                 autoCorrect={false}
@@ -125,11 +128,14 @@ export default function RegisterScreen() {
 
             {/* Email */}
             <View style={styles.field}>
-              <Text style={[styles.label, { color: colors.text }]}>Email</Text>
+              <Text style={[styles.label, { color: colors.text }]}>Email Address</Text>
               <TextInput
-                style={[styles.input, { backgroundColor: colors.inputBg, color: colors.text, borderColor: errors.email ? colors.error : colors.border }]}
+                style={[
+                  styles.input,
+                  { backgroundColor: colors.inputBg, color: colors.text, borderColor: errors.email ? colors.error : colors.border },
+                ]}
                 placeholder="you@example.com"
-                placeholderTextColor={colors.textSecondary}
+                placeholderTextColor={colors.textMuted}
                 value={email}
                 onChangeText={(t) => { setEmail(t); clearError('email'); }}
                 autoCapitalize="none"
@@ -144,13 +150,16 @@ export default function RegisterScreen() {
             {/* Phone (optional) */}
             <View style={styles.field}>
               <Text style={[styles.label, { color: colors.text }]}>
-                Phone{' '}
-                <Text style={{ color: colors.textSecondary, fontWeight: '400' }}>(optional)</Text>
+                Phone Number{' '}
+                <Text style={{ color: colors.textSecondary, fontWeight: '400' }}>(for pickup SMS)</Text>
               </Text>
               <TextInput
-                style={[styles.input, { backgroundColor: colors.inputBg, color: colors.text, borderColor: errors.phone ? colors.error : colors.border }]}
-                placeholder="+91 9876543210"
-                placeholderTextColor={colors.textSecondary}
+                style={[
+                  styles.input,
+                  { backgroundColor: colors.inputBg, color: colors.text, borderColor: errors.phone ? colors.error : colors.border },
+                ]}
+                placeholder="+91 98765 43210"
+                placeholderTextColor={colors.textMuted}
                 value={phone}
                 onChangeText={(t) => { setPhone(t); clearError('phone'); }}
                 keyboardType="phone-pad"
@@ -164,9 +173,12 @@ export default function RegisterScreen() {
             <View style={styles.field}>
               <Text style={[styles.label, { color: colors.text }]}>Password</Text>
               <TextInput
-                style={[styles.input, { backgroundColor: colors.inputBg, color: colors.text, borderColor: errors.password ? colors.error : colors.border }]}
+                style={[
+                  styles.input,
+                  { backgroundColor: colors.inputBg, color: colors.text, borderColor: errors.password ? colors.error : colors.border },
+                ]}
                 placeholder="Min. 6 characters"
-                placeholderTextColor={colors.textSecondary}
+                placeholderTextColor={colors.textMuted}
                 value={password}
                 onChangeText={(t) => { setPassword(t); clearError('password'); }}
                 secureTextEntry
@@ -178,7 +190,7 @@ export default function RegisterScreen() {
             </View>
 
             <TouchableOpacity
-              style={[styles.btn, { backgroundColor: colors.primary }, isLoading && styles.btnDisabled]}
+              style={[styles.btn, { backgroundColor: colors.primary }, isLoading && styles.btnDisabled, Shadow.primaryGlow]}
               onPress={handleRegister}
               disabled={isLoading}
               accessibilityLabel="Register button"
@@ -187,9 +199,15 @@ export default function RegisterScreen() {
               {isLoading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.btnText}>Create Account</Text>
+                <Text style={styles.btnText}>Create Account →</Text>
               )}
             </TouchableOpacity>
+
+            <View style={styles.trustBadgeRow}>
+              <Text style={[styles.trustBadgeText, { color: colors.textSecondary }]}>
+                🔒 Data Privacy Protected • 100% NABL Accredited Labs
+              </Text>
+            </View>
           </View>
 
           {/* Footer */}
@@ -217,52 +235,59 @@ const makeStyles = (colors: ReturnType<typeof import('@/hooks/useTheme').useThem
       flexGrow: 1,
       paddingHorizontal: Spacing.four,
       paddingVertical: Spacing.four,
-      gap: Spacing.four,
+      gap: Spacing.three,
     },
     header: {
       alignItems: 'center',
-      gap: Spacing.two,
+      gap: 6,
       marginBottom: Spacing.two,
     },
     logoIcon: {
-      width: 72,
-      height: 72,
+      width: 68,
+      height: 68,
       borderRadius: Radius.xl,
       alignItems: 'center',
       justifyContent: 'center',
-      marginBottom: Spacing.two,
+      marginBottom: 4,
     },
-    logoEmoji: { fontSize: 36 },
+    logoEmoji: { fontSize: 34 },
     appName: {
-      fontSize: 20,
-      fontWeight: '700',
-      letterSpacing: 1,
-      textTransform: 'uppercase',
+      fontSize: 12,
+      fontWeight: '800',
+      letterSpacing: 1.5,
     },
-    title: { fontSize: 28, fontWeight: '700', letterSpacing: -0.5 },
-    subtitle: { fontSize: 15, textAlign: 'center' },
-    form: { gap: Spacing.three },
-    field: { gap: Spacing.one },
-    label: { fontSize: 14, fontWeight: '600' },
+    title: { fontSize: 26, fontWeight: '800', letterSpacing: -0.5 },
+    subtitle: { fontSize: 13.5, textAlign: 'center', maxWidth: 280 },
+    formCard: {
+      borderRadius: Radius.xl,
+      padding: Spacing.four,
+      borderWidth: 1,
+      gap: Spacing.three,
+    },
+    field: { gap: 6 },
+    label: { fontSize: 13.5, fontWeight: '700' },
     input: {
       borderWidth: 1.5,
-      borderRadius: Radius.md,
+      borderRadius: Radius.lg,
       paddingHorizontal: Spacing.three,
-      paddingVertical: Spacing.three,
+      paddingVertical: 12,
       fontSize: 15,
     },
-    fieldError: { fontSize: 12, marginTop: 2 },
+    fieldError: { fontSize: 12, marginTop: 2, fontWeight: '600' },
     errorBanner: { padding: Spacing.three, borderRadius: Radius.md },
-    errorBannerText: { fontSize: 14, fontWeight: '500', textAlign: 'center' },
+    errorBannerText: { fontSize: 13, fontWeight: '600', textAlign: 'center' },
     btn: {
-      paddingVertical: Spacing.three,
-      borderRadius: Radius.md,
+      paddingVertical: 14,
+      borderRadius: Radius.lg,
       alignItems: 'center',
-      marginTop: Spacing.two,
+      marginTop: 4,
     },
     btnDisabled: { opacity: 0.6 },
-    btnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+    btnText: { color: '#fff', fontSize: 15, fontWeight: '800' },
+    trustBadgeRow: { alignItems: 'center', marginTop: 4 },
+    trustBadgeText: { fontSize: 11, fontWeight: '500' },
     footer: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
     footerText: { fontSize: 14 },
     footerLink: { fontSize: 14, fontWeight: '700' },
   });
+

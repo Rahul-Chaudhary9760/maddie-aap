@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 
-import { api, tokenStorage } from '@/lib/api';
+import { API_BASE_URL, api, tokenStorage } from '@/lib/api';
 import type { User } from '@/types';
 
 // ─── Context Types ────────────────────────────────────────────────────────────
@@ -82,14 +82,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(async () => {
     try {
-      await api.post('/auth/logout', {});
+      const token = await tokenStorage.getAccessToken();
+      if (token) {
+        // Notify backend asynchronously without blocking or failing on refresh token
+        fetch(`${API_BASE_URL}/auth/logout`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }).catch(() => {});
+      }
     } catch {
-      // Ignore logout errors
+      // Ignore network errors on logout
     } finally {
       await tokenStorage.clearTokens();
       setUser(null);
     }
   }, []);
+
 
   return (
     <AuthContext.Provider

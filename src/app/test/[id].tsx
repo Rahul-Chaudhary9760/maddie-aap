@@ -1,4 +1,4 @@
-import { router, useLocalSearchParams } from 'expo-router';
+import { Stack, router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -12,42 +12,25 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/hooks/useTheme';
 import { testsService } from '@/services';
-import { Radius, Shadow, Spacing } from '@/constants/theme';
+import { getCategoryMeta, Radius, Shadow, Spacing } from '@/constants/theme';
 import type { MedicalTest } from '@/types';
 
-const CATEGORY_EMOJI: Record<string, string> = {
-  Blood: '🩸',
-  'Blood Test': '🩸',
-  Urine: '🧫',
-  'Urine Test': '🧫',
-  Radiology: '🩻',
-  'Full Body': '🏃‍♂️',
-  Cardiology: '❤️',
-  Pathology: '🔬',
-  Microbiology: '🦠',
-  Thyroid: '🦋',
-  Diabetes: '🩺',
-  Other: '🧪',
-};
-
-function getCategoryEmoji(cat: string): string {
-  if (CATEGORY_EMOJI[cat]) return CATEGORY_EMOJI[cat];
-  const lower = (cat || '').toLowerCase();
-  if (lower.includes('blood')) return '🩸';
-  if (lower.includes('urine')) return '🧫';
-  if (lower.includes('radio') || lower.includes('x-ray') || lower.includes('scan')) return '🩻';
-  if (lower.includes('body')) return '🏃‍♂️';
-  if (lower.includes('heart') || lower.includes('cardio')) return '❤️';
-  if (lower.includes('micro')) return '🦠';
-  if (lower.includes('path')) return '🔬';
-  return '🧪';
-}
-
-function InfoRow({ label, value, colors }: { label: string; value: string; colors: ReturnType<typeof useTheme>['colors'] }) {
+function HighlightItem({
+  emoji,
+  title,
+  subtitle,
+  colors,
+}: {
+  emoji: string;
+  title: string;
+  subtitle: string;
+  colors: ReturnType<typeof useTheme>['colors'];
+}) {
   return (
-    <View style={styles.infoRow}>
-      <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>{label}</Text>
-      <Text style={[styles.infoValue, { color: colors.text }]}>{value}</Text>
+    <View style={[styles.highlightItem, { backgroundColor: colors.inputBg, borderColor: colors.border }]}>
+      <Text style={{ fontSize: 22 }}>{emoji}</Text>
+      <Text style={[styles.highlightTitle, { color: colors.textSecondary }]}>{title}</Text>
+      <Text style={[styles.highlightSubtitle, { color: colors.text }]}>{subtitle}</Text>
     </View>
   );
 }
@@ -85,6 +68,7 @@ export default function TestDetailScreen() {
     return (
       <View style={[styles.center, { backgroundColor: colors.background }]}>
         <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Loading test details...</Text>
       </View>
     );
   }
@@ -92,7 +76,7 @@ export default function TestDetailScreen() {
   if (error || !test) {
     return (
       <View style={[styles.center, { backgroundColor: colors.background }]}>
-        <Text style={{ fontSize: 40 }}>⚠️</Text>
+        <Text style={{ fontSize: 44 }}>⚠️</Text>
         <Text style={[styles.errorText, { color: colors.error }]}>{error ?? 'Test not found'}</Text>
         <TouchableOpacity style={[styles.retryBtn, { backgroundColor: colors.primary }]} onPress={() => router.back()}>
           <Text style={styles.retryText}>Go Back</Text>
@@ -101,66 +85,139 @@ export default function TestDetailScreen() {
     );
   }
 
+  const meta = getCategoryMeta(test.category);
+  const isAvailable = test.isAvailable !== false;
+
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]} edges={['bottom']}>
+      <Stack.Screen
+        options={{
+          title: test.name,
+          headerBackTitle: 'Back',
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => router.back()}
+              hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+              style={styles.headerBackBtn}
+              accessibilityRole="button"
+              accessibilityLabel="Back"
+            >
+              <Text style={[styles.headerBackIcon, { color: colors.primary }]}>‹</Text>
+              <Text style={[styles.headerBackText, { color: colors.primary }]}>Back</Text>
+            </TouchableOpacity>
+          ),
+        }}
+      />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Hero */}
-        <View style={[styles.hero, { backgroundColor: colors.primaryLight }]}>
-          <Text style={styles.heroEmoji}>{getCategoryEmoji(test.category)}</Text>
-          <View style={[styles.availBadge, { backgroundColor: test.isAvailable ? colors.successLight : colors.errorLight }]}>
-            <Text style={[styles.availText, { color: test.isAvailable ? colors.success : colors.error }]}>
-              {test.isAvailable ? '✅ Available for Booking' : '❌ Currently Unavailable'}
+        {/* Hero Card */}
+        <View style={[styles.heroCard, { backgroundColor: colors.card, borderColor: colors.border }, Shadow.md]}>
+          <View style={styles.heroTop}>
+            <View style={[styles.heroEmojiWrap, { backgroundColor: meta.bg }]}>
+              <Text style={{ fontSize: 36 }}>{meta.emoji}</Text>
+            </View>
+            <View style={styles.heroBadgeColumn}>
+              <View style={[styles.availBadge, { backgroundColor: isAvailable ? colors.successLight : colors.errorLight }]}>
+                <Text style={[styles.availText, { color: isAvailable ? colors.success : colors.error }]}>
+                  {isAvailable ? '● Available for Booking' : '● Unavailable'}
+                </Text>
+              </View>
+              <View style={[styles.catBadge, { backgroundColor: meta.bg }]}>
+                <Text style={[styles.catBadgeText, { color: meta.text }]}>{test.category}</Text>
+              </View>
+            </View>
+          </View>
+
+          <Text style={[styles.testTitle, { color: colors.text }]}>{test.name}</Text>
+
+          {test.description ? (
+            <Text style={[styles.testDescription, { color: colors.textSecondary }]}>
+              {test.description}
             </Text>
+          ) : null}
+
+          <View style={[styles.trustTagRow, { backgroundColor: colors.inputBg }]}>
+            <Text style={[styles.trustTag, { color: colors.textSecondary }]}>🛡️ NABL Certified Lab</Text>
+            <Text style={[styles.trustDot, { color: colors.border }]}>•</Text>
+            <Text style={[styles.trustTag, { color: colors.textSecondary }]}>🏠 Free Home Collection</Text>
           </View>
         </View>
 
-        {/* Main Info */}
-        <View style={[styles.card, { backgroundColor: colors.card }, Shadow.md]}>
-          <Text style={[styles.testName, { color: colors.text }]}>{test.name}</Text>
-          <Text style={[styles.category, { color: colors.textSecondary }]}>{test.category}</Text>
-          <Text style={[styles.description, { color: colors.textSecondary }]}>{test.description}</Text>
-
-          <View style={[styles.divider, { backgroundColor: colors.border }]} />
-
-          <InfoRow label="Price" value={`₹${test.price}`} colors={colors} />
-          {test.reportDeliveryTime && (
-            <InfoRow label="Report Ready In" value={test.reportDeliveryTime} colors={colors} />
-          )}
+        {/* Key Parameter Highlights Grid */}
+        <View style={styles.sectionWrap}>
+          <Text style={[styles.sectionHeading, { color: colors.text }]}>Test Highlights</Text>
+          <View style={styles.highlightsGrid}>
+            <HighlightItem
+              emoji="🩸"
+              title="Sample Type"
+              subtitle={test.category.includes('Urine') ? 'Urine' : 'Blood Sample'}
+              colors={colors}
+            />
+            <HighlightItem
+              emoji="⏱️"
+              title="Turnaround"
+              subtitle={test.reportDeliveryTime || '24 Hours'}
+              colors={colors}
+            />
+            <HighlightItem
+              emoji="🍽️"
+              title="Fasting"
+              subtitle={test.preparationInstructions?.toLowerCase().includes('fast') ? '8-10h Fasting' : 'Not Required'}
+              colors={colors}
+            />
+            <HighlightItem
+              emoji="👥"
+              title="Age Group"
+              subtitle="All age groups"
+              colors={colors}
+            />
+          </View>
         </View>
 
         {/* Preparation Instructions */}
-        {test.preparationInstructions && (
-          <View style={[styles.card, { backgroundColor: colors.card }, Shadow.sm]}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>📝 Preparation Instructions</Text>
-            <Text style={[styles.instructions, { color: colors.textSecondary }]}>
+        {test.preparationInstructions ? (
+          <View style={[styles.infoCard, { backgroundColor: colors.card, borderColor: colors.border }, Shadow.sm]}>
+            <View style={styles.cardHeaderRow}>
+              <Text style={{ fontSize: 20 }}>📝</Text>
+              <Text style={[styles.cardTitle, { color: colors.text }]}>Preparation Guidelines</Text>
+            </View>
+            <Text style={[styles.instructionText, { color: colors.textSecondary }]}>
               {test.preparationInstructions}
             </Text>
           </View>
-        )}
+        ) : null}
 
-        {/* Booking Note */}
+        {/* Sample Pickup Note */}
         <View style={[styles.noteCard, { backgroundColor: colors.warningLight }]}>
-          <Text style={[styles.noteText, { color: colors.warning }]}>
-            ⚠️ Please arrive 15 minutes before your scheduled slot. Bring a valid government-issued ID.
+          <Text style={[styles.noteHeading, { color: colors.warning }]}>ℹ️ Important Information</Text>
+          <Text style={[styles.noteText, { color: colors.text }]}>
+            A certified phlebotomist will arrive at your selected time slot. Please keep your valid ID ready. Reports will be uploaded directly to your app account.
           </Text>
         </View>
       </ScrollView>
 
-      {/* Sticky Footer */}
-      <View style={[styles.footer, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
-        <View>
-          <Text style={[styles.priceLabel, { color: colors.textSecondary }]}>Total Price</Text>
-          <Text style={[styles.priceValue, { color: colors.primary }]}>₹{test.price}</Text>
+      {/* Sticky Bottom Footer */}
+      <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border }, Shadow.lg]}>
+        <View style={styles.footerPriceCol}>
+          <Text style={[styles.footerPriceLabel, { color: colors.textMuted }]}>Total Amount</Text>
+          <View style={styles.priceRow}>
+            <Text style={[styles.footerPriceValue, { color: colors.primary }]}>₹{test.price}</Text>
+            <Text style={[styles.footerStrikePrice, { color: colors.textMuted }]}>₹{Math.round(test.price * 1.4)}</Text>
+          </View>
         </View>
+
         <TouchableOpacity
-          style={[styles.bookBtn, { backgroundColor: test.isAvailable ? colors.primary : colors.border }]}
-          disabled={!test.isAvailable}
+          style={[
+            styles.bookBtn,
+            { backgroundColor: isAvailable ? colors.primary : colors.border },
+            isAvailable && Shadow.primaryGlow,
+          ]}
+          disabled={!isAvailable}
           onPress={() => router.push({ pathname: '/book/[id]', params: { id: test._id } })}
           accessibilityRole="button"
-          accessibilityLabel="Book this test"
+          accessibilityLabel="Proceed to booking"
         >
-          <Text style={[styles.bookBtnText, { color: test.isAvailable ? '#fff' : colors.textSecondary }]}>
-            {test.isAvailable ? 'Book Now' : 'Unavailable'}
+          <Text style={[styles.bookBtnText, { color: isAvailable ? '#fff' : colors.textSecondary }]}>
+            {isAvailable ? 'Book Appointment →' : 'Unavailable'}
           </Text>
         </TouchableOpacity>
       </View>
@@ -170,40 +227,220 @@ export default function TestDetailScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  content: { paddingBottom: 24, gap: Spacing.three },
-  hero: {
-    alignItems: 'center',
-    paddingVertical: Spacing.four,
+  content: { paddingBottom: 24, gap: Spacing.three, paddingTop: Spacing.two },
+  heroCard: {
+    marginHorizontal: Spacing.four,
+    borderRadius: Radius.xl,
+    padding: Spacing.four,
+    borderWidth: 1,
     gap: Spacing.two,
   },
-  heroEmoji: { fontSize: 56 },
-  availBadge: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: Radius.full },
-  availText: { fontSize: 13, fontWeight: '700' },
-  card: { marginHorizontal: Spacing.four, borderRadius: Radius.lg, padding: Spacing.three, gap: Spacing.two },
-  testName: { fontSize: 22, fontWeight: '800', lineHeight: 28 },
-  category: { fontSize: 13, fontWeight: '500' },
-  description: { fontSize: 14, lineHeight: 22 },
-  divider: { height: 1 },
-  infoRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6 },
-  infoLabel: { fontSize: 13 },
-  infoValue: { fontSize: 13, fontWeight: '700' },
-  sectionTitle: { fontSize: 15, fontWeight: '700' },
-  instructions: { fontSize: 14, lineHeight: 22 },
-  noteCard: { marginHorizontal: Spacing.four, borderRadius: Radius.lg, padding: Spacing.three },
-  noteText: { fontSize: 13, lineHeight: 20 },
+  heroTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  heroEmojiWrap: {
+    width: 64,
+    height: 64,
+    borderRadius: Radius.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  heroBadgeColumn: {
+    alignItems: 'flex-end',
+    gap: 6,
+  },
+  availBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: Radius.full,
+  },
+  availText: {
+    fontSize: 11.5,
+    fontWeight: '700',
+  },
+  catBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: Radius.full,
+  },
+  catBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  testTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    lineHeight: 28,
+    letterSpacing: -0.4,
+    marginTop: 4,
+  },
+  testDescription: {
+    fontSize: 14,
+    lineHeight: 22,
+  },
+  trustTagRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: Spacing.two,
+    borderRadius: Radius.md,
+    marginTop: 4,
+    gap: 8,
+  },
+  trustTag: {
+    fontSize: 11.5,
+    fontWeight: '600',
+  },
+  trustDot: {
+    fontSize: 12,
+  },
+  sectionWrap: {
+    paddingHorizontal: Spacing.four,
+    gap: Spacing.two,
+  },
+  sectionHeading: {
+    fontSize: 16,
+    fontWeight: '800',
+    letterSpacing: -0.2,
+  },
+  highlightsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  highlightItem: {
+    width: '48.5%',
+    padding: Spacing.three,
+    borderRadius: Radius.lg,
+    borderWidth: 1,
+    gap: 2,
+  },
+  highlightTitle: {
+    fontSize: 11,
+    fontWeight: '500',
+    marginTop: 4,
+  },
+  highlightSubtitle: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  infoCard: {
+    marginHorizontal: Spacing.four,
+    borderRadius: Radius.xl,
+    padding: Spacing.three,
+    borderWidth: 1,
+    gap: Spacing.two,
+  },
+  cardHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+  },
+  cardTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  instructionText: {
+    fontSize: 13.5,
+    lineHeight: 21,
+  },
+  noteCard: {
+    marginHorizontal: Spacing.four,
+    borderRadius: Radius.xl,
+    padding: Spacing.three,
+    gap: 4,
+  },
+  noteHeading: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  noteText: {
+    fontSize: 12.5,
+    lineHeight: 18,
+  },
   footer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: Spacing.three,
+    paddingHorizontal: Spacing.four,
+    paddingVertical: Spacing.three,
     borderTopWidth: 1,
   },
-  priceLabel: { fontSize: 12 },
-  priceValue: { fontSize: 24, fontWeight: '800' },
-  bookBtn: { paddingHorizontal: Spacing.four, paddingVertical: Spacing.three, borderRadius: Radius.md },
-  bookBtnText: { fontSize: 16, fontWeight: '700' },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: Spacing.two },
-  errorText: { fontSize: 14, textAlign: 'center', paddingHorizontal: Spacing.four },
-  retryBtn: { paddingHorizontal: Spacing.four, paddingVertical: Spacing.two, borderRadius: Radius.md },
-  retryText: { color: '#fff', fontWeight: '700' },
+  footerPriceCol: {
+    gap: 1,
+  },
+  footerPriceLabel: {
+    fontSize: 11,
+    fontWeight: '500',
+  },
+  priceRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 6,
+  },
+  footerPriceValue: {
+    fontSize: 24,
+    fontWeight: '800',
+  },
+  footerStrikePrice: {
+    fontSize: 14,
+    textDecorationLine: 'line-through',
+  },
+  bookBtn: {
+    paddingHorizontal: Spacing.four,
+    paddingVertical: 14,
+    borderRadius: Radius.lg,
+    minWidth: 180,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bookBtnText: {
+    fontSize: 15,
+    fontWeight: '800',
+  },
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.two,
+  },
+  loadingText: {
+    fontSize: 14,
+    marginTop: 6,
+  },
+  errorText: {
+    fontSize: 14,
+    textAlign: 'center',
+    paddingHorizontal: Spacing.four,
+  },
+  retryBtn: {
+    paddingHorizontal: Spacing.four,
+    paddingVertical: Spacing.two,
+    borderRadius: Radius.md,
+  },
+  retryText: {
+    color: '#fff',
+    fontWeight: '700',
+  },
+  headerBackBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: 10,
+    paddingVertical: 4,
+  },
+  headerBackIcon: {
+    fontSize: 26,
+    fontWeight: '400',
+    lineHeight: 26,
+    marginRight: 2,
+    marginTop: -2,
+  },
+  headerBackText: {
+    fontSize: 15.5,
+    fontWeight: '600',
+  },
 });
+

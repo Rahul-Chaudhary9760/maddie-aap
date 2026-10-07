@@ -14,44 +14,17 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/hooks/useTheme';
 import { testsService } from '@/services';
-import { Radius, Shadow, Spacing } from '@/constants/theme';
+import { getCategoryMeta, Radius, Shadow, Spacing } from '@/constants/theme';
 import type { MedicalTest } from '@/types';
-
-const CATEGORY_EMOJI: Record<string, string> = {
-  Blood: '🩸',
-  'Blood Test': '🩸',
-  Urine: '🧫',
-  'Urine Test': '🧫',
-  Radiology: '🩻',
-  'Full Body': '🏃‍♂️',
-  Cardiology: '❤️',
-  Pathology: '🔬',
-  Microbiology: '🦠',
-  Thyroid: '🦋',
-  Diabetes: '🩺',
-  Other: '🧪',
-};
-
-function getCategoryEmoji(cat: string): string {
-  if (CATEGORY_EMOJI[cat]) return CATEGORY_EMOJI[cat];
-  const lower = cat.toLowerCase();
-  if (lower.includes('blood')) return '🩸';
-  if (lower.includes('urine')) return '🧫';
-  if (lower.includes('radio') || lower.includes('x-ray') || lower.includes('scan')) return '🩻';
-  if (lower.includes('body')) return '🏃‍♂️';
-  if (lower.includes('heart') || lower.includes('cardio')) return '❤️';
-  if (lower.includes('micro')) return '🦠';
-  if (lower.includes('path')) return '🔬';
-  return '🧪';
-}
 
 function TestCard({ test }: { test: MedicalTest }) {
   const { colors } = useTheme();
-  const emoji = getCategoryEmoji(test.category);
+  const meta = getCategoryMeta(test.category);
+  const isAvailable = test.isAvailable !== false;
 
   return (
     <TouchableOpacity
-      activeOpacity={0.7}
+      activeOpacity={0.75}
       style={[
         styles.card,
         { backgroundColor: colors.card, borderColor: colors.border },
@@ -61,34 +34,42 @@ function TestCard({ test }: { test: MedicalTest }) {
       accessibilityRole="button"
       accessibilityLabel={`View details for ${test.name}`}
     >
+      {/* Top Meta Bar */}
       <View style={styles.cardTop}>
-        <View style={[styles.cardEmoji, { backgroundColor: colors.primaryLight }]}>
-          <Text style={{ fontSize: 26 }}>{emoji}</Text>
-        </View>
-        <View style={styles.badgeRow}>
-          <View style={[styles.catBadge, { backgroundColor: colors.inputBg }]}>
-            <Text style={[styles.catBadgeText, { color: colors.textSecondary }]}>
-              {test.category}
+        <View style={styles.cardLeftMeta}>
+          <View style={[styles.cardEmoji, { backgroundColor: meta.bg }]}>
+            <Text style={{ fontSize: 24 }}>{meta.emoji}</Text>
+          </View>
+          <View style={styles.cardCatWrap}>
+            <View style={[styles.catBadge, { backgroundColor: meta.bg }]}>
+              <Text style={[styles.catBadgeText, { color: meta.text }]}>
+                {test.category}
+              </Text>
+            </View>
+            <Text style={[styles.turnaroundText, { color: colors.textSecondary }]}>
+              ⏱️ {test.reportDeliveryTime || 'Ready in 24 hrs'}
             </Text>
           </View>
-          <View
+        </View>
+
+        <View
+          style={[
+            styles.availBadge,
+            { backgroundColor: isAvailable ? colors.successLight : colors.errorLight },
+          ]}
+        >
+          <Text
             style={[
-              styles.availBadge,
-              { backgroundColor: test.isAvailable !== false ? colors.successLight : colors.errorLight },
+              styles.availBadgeText,
+              { color: isAvailable ? colors.success : colors.error },
             ]}
           >
-            <Text
-              style={[
-                styles.availBadgeText,
-                { color: test.isAvailable !== false ? colors.success : colors.error },
-              ]}
-            >
-              {test.isAvailable !== false ? '● Available' : '● Unavailable'}
-            </Text>
-          </View>
+            {isAvailable ? '● Available' : '● Unavailable'}
+          </Text>
         </View>
       </View>
 
+      {/* Test Name & Description */}
       <Text style={[styles.cardName, { color: colors.text }]} numberOfLines={2}>
         {test.name}
       </Text>
@@ -99,15 +80,40 @@ function TestCard({ test }: { test: MedicalTest }) {
         </Text>
       ) : null}
 
-      <View style={[styles.cardFooter, { borderTopColor: colors.border }]}>
+      {/* Feature Pills */}
+      <View style={styles.featureRow}>
+        <View style={[styles.featurePill, { backgroundColor: colors.inputBg, borderColor: colors.border }]}>
+          <Text style={[styles.featureText, { color: colors.textSecondary }]}>🏠 Free Home Pickup</Text>
+        </View>
+        <View style={[styles.featurePill, { backgroundColor: colors.inputBg, borderColor: colors.border }]}>
+          <Text style={[styles.featureText, { color: colors.textSecondary }]}>📋 Digital Report</Text>
+        </View>
+      </View>
+
+      {/* Footer / Pricing & CTA */}
+      <View style={[styles.cardFooter, { borderTopColor: colors.borderLight }]}>
         <View style={styles.priceContainer}>
-          <Text style={[styles.pricePrefix, { color: colors.textSecondary }]}>Starting at</Text>
-          <Text style={[styles.cardPrice, { color: colors.primary }]}>₹{test.price}</Text>
+          <Text style={[styles.pricePrefix, { color: colors.textMuted }]}>Starting at</Text>
+          <View style={styles.priceNumberRow}>
+            <Text style={[styles.cardPrice, { color: colors.primary }]}>₹{test.price}</Text>
+            <Text style={[styles.strikePrice, { color: colors.textMuted }]}>₹{Math.round(test.price * 1.4)}</Text>
+          </View>
         </View>
 
-        <View style={[styles.bookBtn, { backgroundColor: colors.primary }]}>
-          <Text style={styles.bookBtnText}>Book Now →</Text>
-        </View>
+        <TouchableOpacity
+          style={[styles.bookBtn, { backgroundColor: isAvailable ? colors.primary : colors.border }]}
+          disabled={!isAvailable}
+          onPress={(e) => {
+            e.stopPropagation?.();
+            router.push({ pathname: '/book/[id]', params: { id: test._id } });
+          }}
+          accessibilityRole="button"
+          accessibilityLabel={`Book ${test.name}`}
+        >
+          <Text style={[styles.bookBtnText, { color: isAvailable ? '#fff' : colors.textSecondary }]}>
+            Book Now →
+          </Text>
+        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
@@ -198,7 +204,12 @@ export default function TestsScreen() {
       {/* Header */}
       <View style={[styles.header, { backgroundColor: colors.background }]}>
         <View style={styles.headerTop}>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>Lab Tests</Text>
+          <View>
+            <Text style={[styles.headerTitle, { color: colors.text }]}>Medical Lab Tests</Text>
+            <Text style={[styles.headerSub, { color: colors.textSecondary }]}>
+              NABL Accredited • Home Sample Collection
+            </Text>
+          </View>
           <View style={[styles.countBadge, { backgroundColor: colors.primaryLight }]}>
             <Text style={[styles.countText, { color: colors.primary }]}>
               {filtered.length} {filtered.length === 1 ? 'Test' : 'Tests'}
@@ -216,8 +227,8 @@ export default function TestsScreen() {
           <Text style={{ fontSize: 18 }}>🔍</Text>
           <TextInput
             style={[styles.searchInput, { color: colors.text }]}
-            placeholder="Search test name, category..."
-            placeholderTextColor={colors.textSecondary}
+            placeholder="Search test name, package, or organ..."
+            placeholderTextColor={colors.textMuted}
             value={search}
             onChangeText={setSearch}
             returnKeyType="search"
@@ -243,7 +254,8 @@ export default function TestsScreen() {
           style={styles.chipScroll}
           renderItem={({ item: cat }) => {
             const isSelected = activeCategory === cat;
-            const emoji = cat === 'All' ? '✨' : getCategoryEmoji(cat);
+            const meta = getCategoryMeta(cat);
+            const emoji = cat === 'All' ? '✨' : meta.emoji;
             return (
               <TouchableOpacity
                 style={[
@@ -252,6 +264,7 @@ export default function TestsScreen() {
                     backgroundColor: isSelected ? colors.primary : colors.card,
                     borderColor: isSelected ? colors.primary : colors.border,
                   },
+                  isSelected && Shadow.primaryGlow,
                 ]}
                 onPress={() => setActiveCategory(cat)}
                 accessibilityRole="button"
@@ -261,7 +274,7 @@ export default function TestsScreen() {
                 <Text
                   style={[
                     styles.chipText,
-                    { color: isSelected ? '#fff' : colors.text },
+                    { color: isSelected ? '#fff' : colors.text, fontWeight: isSelected ? '700' : '600' },
                   ]}
                 >
                   {cat}
@@ -355,9 +368,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: '800',
     letterSpacing: -0.5,
+  },
+  headerSub: {
+    fontSize: 12,
+    fontWeight: '500',
+    marginTop: 2,
   },
   countBadge: {
     paddingHorizontal: 10,
@@ -373,13 +391,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.two,
     borderWidth: 1.5,
-    borderRadius: Radius.md,
+    borderRadius: Radius.lg,
     paddingHorizontal: Spacing.three,
     paddingVertical: 10,
   },
   searchInput: {
     flex: 1,
-    fontSize: 15,
+    fontSize: 14.5,
     padding: 0,
   },
   chipContainer: {
@@ -387,7 +405,7 @@ const styles = StyleSheet.create({
   },
   chipScroll: {
     flexGrow: 0,
-    maxHeight: 48,
+    maxHeight: 50,
   },
   chips: {
     paddingHorizontal: Spacing.four,
@@ -405,7 +423,6 @@ const styles = StyleSheet.create({
   },
   chipText: {
     fontSize: 13,
-    fontWeight: '600',
   },
   list: {
     paddingHorizontal: Spacing.four,
@@ -415,7 +432,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   card: {
-    borderRadius: Radius.lg,
+    borderRadius: Radius.xl,
     padding: Spacing.three,
     borderWidth: 1,
     gap: Spacing.two,
@@ -423,7 +440,13 @@ const styles = StyleSheet.create({
   cardTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  cardLeftMeta: {
+    flexDirection: 'row',
+    gap: Spacing.two,
     alignItems: 'center',
+    flex: 1,
   },
   cardEmoji: {
     width: 44,
@@ -432,19 +455,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  badgeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
+  cardCatWrap: {
+    gap: 2,
   },
   catBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
     borderRadius: Radius.full,
+    alignSelf: 'flex-start',
   },
   catBadgeText: {
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: '700',
+  },
+  turnaroundText: {
+    fontSize: 11,
+    fontWeight: '500',
   },
   availBadge: {
     paddingHorizontal: 8,
@@ -457,12 +483,28 @@ const styles = StyleSheet.create({
   },
   cardName: {
     fontSize: 17,
-    fontWeight: '700',
+    fontWeight: '800',
     lineHeight: 22,
+    letterSpacing: -0.2,
   },
   cardDesc: {
     fontSize: 13,
     lineHeight: 18,
+  },
+  featureRow: {
+    flexDirection: 'row',
+    gap: 6,
+    flexWrap: 'wrap',
+  },
+  featurePill: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: Radius.sm,
+    borderWidth: 1,
+  },
+  featureText: {
+    fontSize: 10.5,
+    fontWeight: '500',
   },
   cardFooter: {
     flexDirection: 'row',
@@ -476,22 +518,30 @@ const styles = StyleSheet.create({
     gap: 1,
   },
   pricePrefix: {
-    fontSize: 11,
+    fontSize: 10.5,
     fontWeight: '500',
+  },
+  priceNumberRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 6,
   },
   cardPrice: {
     fontSize: 20,
     fontWeight: '800',
   },
+  strikePrice: {
+    fontSize: 13,
+    textDecorationLine: 'line-through',
+  },
   bookBtn: {
     paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: Radius.md,
+    paddingVertical: 10,
+    borderRadius: Radius.lg,
     alignItems: 'center',
     justifyContent: 'center',
   },
   bookBtnText: {
-    color: '#fff',
     fontWeight: '700',
     fontSize: 14,
   },
@@ -557,3 +607,4 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
 });
+

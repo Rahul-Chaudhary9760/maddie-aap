@@ -1,18 +1,38 @@
 import { Tabs } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
+import React from 'react';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/hooks/useTheme';
+import { Radius, Shadow } from '@/constants/theme';
 
-type TabIconProps = { focused: boolean; label: string; emoji: string; colors: ReturnType<typeof useTheme>['colors'] };
+type TabIconProps = {
+  focused: boolean;
+  label: string;
+  emoji: string;
+  colors: ReturnType<typeof useTheme>['colors'];
+};
 
 function TabIcon({ focused, label, emoji, colors }: TabIconProps) {
   return (
-    <View style={styles.tabIcon}>
-      <Text style={[styles.emoji, { opacity: focused ? 1 : 0.55 }]}>{emoji}</Text>
+    <View style={styles.tabItem}>
+      <View
+        style={[
+          styles.iconPill,
+          focused && {
+            backgroundColor: colors.primaryLight,
+            transform: [{ scale: 1.05 }],
+          },
+        ]}
+      >
+        <Text style={[styles.emoji, { opacity: focused ? 1 : 0.65 }]}>{emoji}</Text>
+      </View>
       <Text
         style={[
           styles.tabLabel,
-          { color: focused ? colors.primary : colors.textSecondary },
+          {
+            color: focused ? colors.primary : colors.textSecondary,
+            fontWeight: focused ? '700' : '500',
+          },
         ]}
       >
         {label}
@@ -32,8 +52,10 @@ export default function TabsLayout() {
           backgroundColor: colors.card,
           borderTopColor: colors.border,
           borderTopWidth: 1,
-          height: 60,
-          paddingBottom: 4,
+          height: Platform.OS === 'ios' ? 86 : 68,
+          paddingTop: 8,
+          paddingBottom: Platform.OS === 'ios' ? 24 : 10,
+          ...Shadow.sm,
         },
         tabBarShowLabel: false,
       }}
@@ -50,7 +72,7 @@ export default function TabsLayout() {
         name="tests"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} label="Tests" emoji="🧪" colors={colors} />
+            <TabIcon focused={focused} label="Lab Tests" emoji="🧪" colors={colors} />
           ),
         }}
       />
@@ -75,7 +97,25 @@ export default function TabsLayout() {
 }
 
 const styles = StyleSheet.create({
-  tabIcon: { alignItems: 'center', gap: 2 },
-  emoji: { fontSize: 22 },
-  tabLabel: { fontSize: 10, fontWeight: '600' },
+  tabItem: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 2,
+    minWidth: 64,
+  },
+  iconPill: {
+    width: 44,
+    height: 30,
+    borderRadius: Radius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emoji: {
+    fontSize: 20,
+  },
+  tabLabel: {
+    fontSize: 11,
+    letterSpacing: -0.1,
+  },
 });
+

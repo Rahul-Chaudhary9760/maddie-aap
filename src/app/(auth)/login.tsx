@@ -16,7 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ApiError } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/hooks/useTheme';
-import { Radius, Spacing } from '@/constants/theme';
+import { Radius, Shadow, Spacing } from '@/constants/theme';
 
 export default function LoginScreen() {
   const { login } = useAuth();
@@ -70,18 +70,18 @@ export default function LoginScreen() {
         >
           {/* Header */}
           <View style={styles.header}>
-            <View style={[styles.logoIcon, { backgroundColor: colors.primaryLight }]}>
+            <View style={[styles.logoIcon, { backgroundColor: colors.primaryLight }, Shadow.primaryGlow]}>
               <Text style={styles.logoEmoji}>🧪</Text>
             </View>
-            <Text style={[styles.appName, { color: colors.primary }]}>Maddie</Text>
-            <Text style={[styles.title, { color: colors.text }]}>Welcome back</Text>
+            <Text style={[styles.appName, { color: colors.primary }]}>MADDIE HEALTH</Text>
+            <Text style={[styles.title, { color: colors.text }]}>Welcome Back</Text>
             <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-              Sign in to book your medical tests
+              Sign in to manage test bookings & health reports
             </Text>
           </View>
 
-          {/* Form */}
-          <View style={styles.form}>
+          {/* Form Card */}
+          <View style={[styles.formCard, { backgroundColor: colors.card, borderColor: colors.border }, Shadow.md]}>
             {errors.general && (
               <View style={[styles.errorBanner, { backgroundColor: colors.errorLight }]}>
                 <Text style={[styles.errorBannerText, { color: colors.error }]}>
@@ -91,14 +91,14 @@ export default function LoginScreen() {
             )}
 
             <View style={styles.field}>
-              <Text style={[styles.label, { color: colors.text }]}>Email</Text>
+              <Text style={[styles.label, { color: colors.text }]}>Email Address</Text>
               <TextInput
                 style={[
                   styles.input,
                   { backgroundColor: colors.inputBg, color: colors.text, borderColor: errors.email ? colors.error : colors.border },
                 ]}
                 placeholder="you@example.com"
-                placeholderTextColor={colors.textSecondary}
+                placeholderTextColor={colors.textMuted}
                 value={email}
                 onChangeText={(t) => { setEmail(t); setErrors((e) => ({ ...e, email: undefined })); }}
                 autoCapitalize="none"
@@ -117,8 +117,8 @@ export default function LoginScreen() {
                   styles.input,
                   { backgroundColor: colors.inputBg, color: colors.text, borderColor: errors.password ? colors.error : colors.border },
                 ]}
-                placeholder="Enter your password"
-                placeholderTextColor={colors.textSecondary}
+                placeholder="Enter your secure password"
+                placeholderTextColor={colors.textMuted}
                 value={password}
                 onChangeText={(t) => { setPassword(t); setErrors((e) => ({ ...e, password: undefined })); }}
                 secureTextEntry
@@ -130,7 +130,7 @@ export default function LoginScreen() {
             </View>
 
             <TouchableOpacity
-              style={[styles.btn, { backgroundColor: colors.primary }, isLoading && styles.btnDisabled]}
+              style={[styles.btn, { backgroundColor: colors.primary }, isLoading && styles.btnDisabled, Shadow.primaryGlow]}
               onPress={handleLogin}
               disabled={isLoading}
               accessibilityLabel="Login button"
@@ -139,9 +139,15 @@ export default function LoginScreen() {
               {isLoading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.btnText}>Sign In</Text>
+                <Text style={styles.btnText}>Sign In to Account →</Text>
               )}
             </TouchableOpacity>
+
+            <View style={styles.trustBadgeRow}>
+              <Text style={[styles.trustBadgeText, { color: colors.textSecondary }]}>
+                🔒 256-bit Encrypted • 100% NABL Accredited Labs
+              </Text>
+            </View>
           </View>
 
           {/* Footer */}
@@ -169,63 +175,71 @@ const makeStyles = (colors: ReturnType<typeof import('@/hooks/useTheme').useThem
       flexGrow: 1,
       justifyContent: 'center',
       paddingHorizontal: Spacing.four,
-      paddingVertical: Spacing.five,
-      gap: Spacing.four,
+      paddingVertical: Spacing.four,
+      gap: Spacing.three,
     },
     header: {
       alignItems: 'center',
-      gap: Spacing.two,
+      gap: 6,
       marginBottom: Spacing.two,
     },
     logoIcon: {
-      width: 72,
-      height: 72,
+      width: 68,
+      height: 68,
       borderRadius: Radius.xl,
       alignItems: 'center',
       justifyContent: 'center',
-      marginBottom: Spacing.two,
+      marginBottom: 4,
     },
-    logoEmoji: { fontSize: 36 },
+    logoEmoji: { fontSize: 34 },
     appName: {
-      fontSize: 20,
-      fontWeight: '700',
-      letterSpacing: 1,
-      textTransform: 'uppercase',
+      fontSize: 12,
+      fontWeight: '800',
+      letterSpacing: 1.5,
     },
     title: {
-      fontSize: 28,
-      fontWeight: '700',
+      fontSize: 26,
+      fontWeight: '800',
       letterSpacing: -0.5,
     },
     subtitle: {
-      fontSize: 15,
+      fontSize: 13.5,
       textAlign: 'center',
+      maxWidth: 280,
     },
-    form: { gap: Spacing.three },
-    field: { gap: Spacing.one },
-    label: { fontSize: 14, fontWeight: '600' },
+    formCard: {
+      borderRadius: Radius.xl,
+      padding: Spacing.four,
+      borderWidth: 1,
+      gap: Spacing.three,
+    },
+    field: { gap: 6 },
+    label: { fontSize: 13.5, fontWeight: '700' },
     input: {
       borderWidth: 1.5,
-      borderRadius: Radius.md,
+      borderRadius: Radius.lg,
       paddingHorizontal: Spacing.three,
-      paddingVertical: Spacing.three,
+      paddingVertical: 12,
       fontSize: 15,
     },
-    fieldError: { fontSize: 12, marginTop: 2 },
+    fieldError: { fontSize: 12, marginTop: 2, fontWeight: '600' },
     errorBanner: {
       padding: Spacing.three,
       borderRadius: Radius.md,
     },
-    errorBannerText: { fontSize: 14, fontWeight: '500', textAlign: 'center' },
+    errorBannerText: { fontSize: 13, fontWeight: '600', textAlign: 'center' },
     btn: {
-      paddingVertical: Spacing.three,
-      borderRadius: Radius.md,
+      paddingVertical: 14,
+      borderRadius: Radius.lg,
       alignItems: 'center',
-      marginTop: Spacing.two,
+      marginTop: 4,
     },
     btnDisabled: { opacity: 0.6 },
-    btnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+    btnText: { color: '#fff', fontSize: 15, fontWeight: '800' },
+    trustBadgeRow: { alignItems: 'center', marginTop: 4 },
+    trustBadgeText: { fontSize: 11, fontWeight: '500' },
     footer: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
     footerText: { fontSize: 14 },
     footerLink: { fontSize: 14, fontWeight: '700' },
   });
+

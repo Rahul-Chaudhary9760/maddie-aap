@@ -2,14 +2,11 @@ import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 
 // ─── Config ───────────────────────────────────────────────────────────────────
-// For Android emulator, use 10.0.2.2; for iOS simulator or physical dev, use your machine IP
-export const API_BASE_URL = __DEV__
-  ? Platform.select({
-      android: 'http://10.0.2.2:8000/api/v1',
-      ios: 'http://localhost:8000/api/v1',
-      default: 'http://localhost:8000/api/v1',
-    })!
-  : 'https://your-production-api.com/api/v1'; // replace with prod URL
+// EXPO_PUBLIC_API_URL takes precedence (from .env).
+// Defaults to deployed backend on Render (https://maddie-sv65.onrender.com/api/v1) for seamless testing on physical devices, simulators, and web.
+const DEFAULT_API_URL = 'https://maddie-sv65.onrender.com/api/v1';
+
+export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || DEFAULT_API_URL;
 
 const ACCESS_TOKEN_KEY = 'maddie_access_token';
 const REFRESH_TOKEN_KEY = 'maddie_refresh_token';

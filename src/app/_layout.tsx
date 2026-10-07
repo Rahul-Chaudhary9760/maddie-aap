@@ -1,9 +1,10 @@
-import { DarkTheme, DefaultTheme, router, Slot, ThemeProvider, useSegments } from 'expo-router';
+import { DarkTheme, DefaultTheme, router, Stack, ThemeProvider, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import React, { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 
 import { AuthProvider, useAuth } from '@/context/AuthContext';
+import { Colors } from '@/constants/theme';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -32,13 +33,48 @@ function NavigationGuard({ children }: { children: React.ReactNode }) {
 }
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  const scheme = useColorScheme();
+  const colors = Colors[scheme === 'dark' ? 'dark' : 'light'];
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={scheme === 'dark' ? DarkTheme : DefaultTheme}>
       <AuthProvider>
         <NavigationGuard>
-          <Slot />
+          <Stack
+            screenOptions={{
+              headerStyle: { backgroundColor: colors.card },
+              headerTintColor: colors.primary,
+              headerTitleStyle: { color: colors.text, fontWeight: '700' },
+              headerShadowVisible: false,
+              contentStyle: { backgroundColor: colors.background },
+              animation: 'slide_from_right',
+              gestureEnabled: true,
+              fullScreenGestureEnabled: true,
+            }}
+          >
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="test/[id]"
+              options={{
+                headerShown: true,
+                title: 'Test Details',
+                headerBackTitle: 'Back',
+                gestureEnabled: true,
+                fullScreenGestureEnabled: true,
+              }}
+            />
+            <Stack.Screen
+              name="book/[id]"
+              options={{
+                headerShown: true,
+                title: 'Book Appointment',
+                headerBackTitle: 'Back',
+                gestureEnabled: true,
+                fullScreenGestureEnabled: true,
+              }}
+            />
+          </Stack>
         </NavigationGuard>
       </AuthProvider>
     </ThemeProvider>
