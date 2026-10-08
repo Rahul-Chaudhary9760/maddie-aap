@@ -1,10 +1,9 @@
 import { DarkTheme, DefaultTheme, router, Stack, ThemeProvider, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import React, { useEffect } from 'react';
-import { useColorScheme } from 'react-native';
 
 import { AuthProvider, useAuth } from '@/context/AuthContext';
-import { Colors } from '@/constants/theme';
+import { useTheme } from '@/hooks/useTheme';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -33,18 +32,36 @@ function NavigationGuard({ children }: { children: React.ReactNode }) {
 }
 
 export default function RootLayout() {
-  const scheme = useColorScheme();
-  const colors = Colors[scheme === 'dark' ? 'dark' : 'light'];
+  const { colors, isDark } = useTheme();
+
+  const customNavigationTheme = {
+    ...(isDark ? DarkTheme : DefaultTheme),
+    colors: {
+      ...(isDark ? DarkTheme.colors : DefaultTheme.colors),
+      primary: colors.primary,
+      background: colors.background,
+      card: colors.card,
+      text: colors.text,
+      border: colors.border,
+    },
+  };
 
   return (
-    <ThemeProvider value={scheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={customNavigationTheme}>
       <AuthProvider>
         <NavigationGuard>
           <Stack
             screenOptions={{
-              headerStyle: { backgroundColor: colors.card },
-              headerTintColor: colors.primary,
-              headerTitleStyle: { color: colors.text, fontWeight: '700' },
+              headerStyle: {
+                backgroundColor: colors.card,
+              },
+              headerTintColor: colors.text,
+              headerTitleStyle: {
+                color: colors.text,
+                fontWeight: '700',
+                fontSize: 17,
+              },
+              headerTitleAlign: 'center',
               headerShadowVisible: false,
               contentStyle: { backgroundColor: colors.background },
               animation: 'slide_from_right',

@@ -195,7 +195,7 @@ export default function HomeScreen() {
 
         {/* Trust & Quality Strip */}
         <View style={[styles.trustSection, { backgroundColor: colors.card, borderColor: colors.border }, Shadow.sm]}>
-          <Text style={[styles.trustHeading, { color: colors.text }]}>Why Maddie Healthcare?</Text>
+          <Text style={[styles.trustHeading, { color: colors.text }]}>Why Mediq Healthcare?</Text>
           <View style={styles.trustGrid}>
             {TRUST_PILLARS.map((pillar) => (
               <View key={pillar.title} style={styles.trustItem}>

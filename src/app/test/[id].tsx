@@ -2,6 +2,7 @@ import { Stack, router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -93,19 +94,20 @@ export default function TestDetailScreen() {
       <Stack.Screen
         options={{
           title: test.name,
-          headerBackTitle: 'Back',
+          headerTitleAlign: 'center',
           headerLeft: () => (
             <TouchableOpacity
               onPress={() => router.back()}
-              hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
-              style={styles.headerBackBtn}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              style={[styles.headerBackBtn, { backgroundColor: colors.inputBg }]}
               accessibilityRole="button"
               accessibilityLabel="Back"
+              activeOpacity={0.7}
             >
-              <Text style={[styles.headerBackIcon, { color: colors.primary }]}>‹</Text>
-              <Text style={[styles.headerBackText, { color: colors.primary }]}>Back</Text>
+              <Text style={[styles.headerBackIcon, { color: colors.text }]}>←</Text>
             </TouchableOpacity>
           ),
+          headerRight: () => <View style={styles.headerRightSpacer} />,
         }}
       />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -426,21 +428,21 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   headerBackBtn: {
-    flexDirection: 'row',
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     alignItems: 'center',
-    paddingRight: 10,
-    paddingVertical: 4,
+    justifyContent: 'center',
+    marginLeft: Platform.OS === 'web' ? 12 : 4,
   },
   headerBackIcon: {
-    fontSize: 26,
-    fontWeight: '400',
-    lineHeight: 26,
-    marginRight: 2,
-    marginTop: -2,
+    fontSize: 18,
+    fontWeight: '700',
+    lineHeight: 20,
   },
-  headerBackText: {
-    fontSize: 15.5,
-    fontWeight: '600',
+  headerRightSpacer: {
+    width: 38,
+    marginRight: Platform.OS === 'web' ? 12 : 4,
   },
 });
 

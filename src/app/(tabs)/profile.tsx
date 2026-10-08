@@ -36,14 +36,14 @@ export default function ProfileScreen() {
 
   const handleLogout = () => {
     if (Platform.OS === 'web') {
-      const confirmed = typeof window !== 'undefined' ? window.confirm('Are you sure you want to sign out of your Maddie account?') : true;
+      const confirmed = typeof window !== 'undefined' ? window.confirm('Are you sure you want to sign out of your Mediq account?') : true;
       if (confirmed) {
         executeLogout();
       }
     } else {
       Alert.alert(
         'Sign Out',
-        'Are you sure you want to sign out of your Maddie account?',
+        'Are you sure you want to sign out of your Mediq account?',
         [
           { text: 'Cancel', style: 'cancel' },
           {
@@ -155,7 +155,7 @@ export default function ProfileScreen() {
           <TouchableOpacity
             style={styles.menuRow}
             onPress={() => {
-              Alert.alert('Customer Care', 'Need help with sample collection or reports?\n\nEmail: support@maddiehealth.com\nHelpline: 1800-123-MADDIE (24x7)');
+              Alert.alert('Customer Care', 'Need help with sample collection or reports?\n\nEmail: support@mediqhealth.com\nHelpline: 1800-123-MEDIQ (24x7)');
             }}
             accessibilityRole="button"
           >
@@ -175,7 +175,7 @@ export default function ProfileScreen() {
             style={styles.menuRow}
             onPress={() => {
               Alert.alert(
-                'Maddie Healthcare Safety',
+                'Mediq Healthcare Safety',
                 'All tests are conducted by certified phlebotomists using sterilized single-use sealed vacutainers and processed in NABL accredited partner labs.',
               );
             }}
@@ -208,7 +208,7 @@ export default function ProfileScreen() {
         </TouchableOpacity>
 
         <Text style={[styles.appVersion, { color: colors.textMuted }]}>
-          Maddie Healthcare App • v1.0.0 (Production Build)
+          Mediq Healthcare App • v1.0.0 (Production Build)
         </Text>
       </ScrollView>
     </SafeAreaView>

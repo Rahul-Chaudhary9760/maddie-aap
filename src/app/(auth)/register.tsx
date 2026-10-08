@@ -16,7 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ApiError } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/hooks/useTheme';
-import { Radius, Shadow, Spacing } from '@/constants/theme';
+import { MediqLogo } from '@/components/mediq-logo';
 
 type FieldErrors = {
   name?: string;
@@ -28,12 +28,13 @@ type FieldErrors = {
 
 export default function RegisterScreen() {
   const { register } = useAuth();
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
 
@@ -72,53 +73,62 @@ export default function RegisterScreen() {
     }
   };
 
-  const styles = makeStyles(colors);
+  const styles = makeStyles(colors, isDark);
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]}>
       <KeyboardAvoidingView
         style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <ScrollView
           contentContainerStyle={styles.container}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Header */}
-          <View style={styles.header}>
-            <View style={[styles.logoIcon, { backgroundColor: colors.primaryLight }, Shadow.primaryGlow]}>
-              <Text style={styles.logoEmoji}>🧪</Text>
-            </View>
-            <Text style={[styles.appName, { color: colors.primary }]}>MADDIE HEALTH</Text>
-            <Text style={[styles.title, { color: colors.text }]}>Create Account</Text>
+          {/* Top Logo */}
+          <View style={styles.logoRow}>
+            <MediqLogo size="md" />
+          </View>
+
+          {/* Heading */}
+          <View style={styles.titleSection}>
+            <Text style={[styles.title, { color: colors.text }]}>Create your account</Text>
             <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-              Join thousands booking lab tests with free home sample pickup
+              Access your health anytime, anywhere.
             </Text>
           </View>
 
-          {/* Form Card */}
-          <View style={[styles.formCard, { backgroundColor: colors.card, borderColor: colors.border }, Shadow.md]}>
-            {errors.general && (
-              <View style={[styles.errorBanner, { backgroundColor: colors.errorLight }]}>
-                <Text style={[styles.errorBannerText, { color: colors.error }]}>
-                  {errors.general}
-                </Text>
-              </View>
-            )}
+          {/* General Error Banner */}
+          {errors.general && (
+            <View style={[styles.errorBanner, { backgroundColor: colors.errorLight }]}>
+              <Text style={[styles.errorBannerText, { color: colors.error }]}>
+                {errors.general}
+              </Text>
+            </View>
+          )}
 
-            {/* Name */}
+          {/* Form Fields */}
+          <View style={styles.formSection}>
+            {/* Full Name */}
             <View style={styles.field}>
               <Text style={[styles.label, { color: colors.text }]}>Full Name</Text>
               <TextInput
                 style={[
                   styles.input,
-                  { backgroundColor: colors.inputBg, color: colors.text, borderColor: errors.name ? colors.error : colors.border },
+                  {
+                    backgroundColor: colors.inputBg,
+                    color: colors.text,
+                    borderColor: errors.name ? colors.error : 'transparent',
+                  },
                 ]}
                 placeholder="Rahul Sharma"
                 placeholderTextColor={colors.textMuted}
                 value={name}
-                onChangeText={(t) => { setName(t); clearError('name'); }}
+                onChangeText={(t) => {
+                  setName(t);
+                  clearError('name');
+                }}
                 autoCorrect={false}
                 returnKeyType="next"
                 accessibilityLabel="Full name input"
@@ -126,18 +136,25 @@ export default function RegisterScreen() {
               {errors.name && <Text style={[styles.fieldError, { color: colors.error }]}>{errors.name}</Text>}
             </View>
 
-            {/* Email */}
+            {/* Email Address */}
             <View style={styles.field}>
-              <Text style={[styles.label, { color: colors.text }]}>Email Address</Text>
+              <Text style={[styles.label, { color: colors.text }]}>Email</Text>
               <TextInput
                 style={[
                   styles.input,
-                  { backgroundColor: colors.inputBg, color: colors.text, borderColor: errors.email ? colors.error : colors.border },
+                  {
+                    backgroundColor: colors.inputBg,
+                    color: colors.text,
+                    borderColor: errors.email ? colors.error : 'transparent',
+                  },
                 ]}
-                placeholder="you@example.com"
+                placeholder="example@gmail.com"
                 placeholderTextColor={colors.textMuted}
                 value={email}
-                onChangeText={(t) => { setEmail(t); clearError('email'); }}
+                onChangeText={(t) => {
+                  setEmail(t);
+                  clearError('email');
+                }}
                 autoCapitalize="none"
                 keyboardType="email-address"
                 autoCorrect={false}
@@ -147,21 +164,27 @@ export default function RegisterScreen() {
               {errors.email && <Text style={[styles.fieldError, { color: colors.error }]}>{errors.email}</Text>}
             </View>
 
-            {/* Phone (optional) */}
+            {/* Phone Number */}
             <View style={styles.field}>
               <Text style={[styles.label, { color: colors.text }]}>
-                Phone Number{' '}
-                <Text style={{ color: colors.textSecondary, fontWeight: '400' }}>(for pickup SMS)</Text>
+                Phone Number <Text style={styles.optionalText}>(optional)</Text>
               </Text>
               <TextInput
                 style={[
                   styles.input,
-                  { backgroundColor: colors.inputBg, color: colors.text, borderColor: errors.phone ? colors.error : colors.border },
+                  {
+                    backgroundColor: colors.inputBg,
+                    color: colors.text,
+                    borderColor: errors.phone ? colors.error : 'transparent',
+                  },
                 ]}
                 placeholder="+91 98765 43210"
                 placeholderTextColor={colors.textMuted}
                 value={phone}
-                onChangeText={(t) => { setPhone(t); clearError('phone'); }}
+                onChangeText={(t) => {
+                  setPhone(t);
+                  clearError('phone');
+                }}
                 keyboardType="phone-pad"
                 returnKeyType="next"
                 accessibilityLabel="Phone number input"
@@ -172,54 +195,99 @@ export default function RegisterScreen() {
             {/* Password */}
             <View style={styles.field}>
               <Text style={[styles.label, { color: colors.text }]}>Password</Text>
-              <TextInput
+              <View
                 style={[
-                  styles.input,
-                  { backgroundColor: colors.inputBg, color: colors.text, borderColor: errors.password ? colors.error : colors.border },
+                  styles.passwordContainer,
+                  {
+                    backgroundColor: colors.inputBg,
+                    borderColor: errors.password ? colors.error : 'transparent',
+                  },
                 ]}
-                placeholder="Min. 6 characters"
-                placeholderTextColor={colors.textMuted}
-                value={password}
-                onChangeText={(t) => { setPassword(t); clearError('password'); }}
-                secureTextEntry
-                returnKeyType="done"
-                onSubmitEditing={handleRegister}
-                accessibilityLabel="Password input"
-              />
+              >
+                <TextInput
+                  style={[styles.passwordInput, { color: colors.text }]}
+                  placeholder="Min. 6 characters"
+                  placeholderTextColor={colors.textMuted}
+                  value={password}
+                  onChangeText={(t) => {
+                    setPassword(t);
+                    clearError('password');
+                  }}
+                  secureTextEntry={!showPassword}
+                  returnKeyType="done"
+                  onSubmitEditing={handleRegister}
+                  accessibilityLabel="Password input"
+                />
+                <TouchableOpacity
+                  style={styles.eyeBtn}
+                  onPress={() => setShowPassword((prev) => !prev)}
+                  accessibilityRole="button"
+                  accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  <Text style={styles.eyeIcon}>{showPassword ? '👁️' : '👁️'}</Text>
+                </TouchableOpacity>
+              </View>
               {errors.password && <Text style={[styles.fieldError, { color: colors.error }]}>{errors.password}</Text>}
             </View>
 
+            {/* Primary Action Button */}
             <TouchableOpacity
-              style={[styles.btn, { backgroundColor: colors.primary }, isLoading && styles.btnDisabled, Shadow.primaryGlow]}
+              style={[
+                styles.primaryBtn,
+                { backgroundColor: colors.primary },
+                isLoading && styles.btnDisabled,
+              ]}
               onPress={handleRegister}
               disabled={isLoading}
-              accessibilityLabel="Register button"
+              accessibilityLabel="Sign up to Mediq"
               accessibilityRole="button"
             >
               {isLoading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.btnText}>Create Account →</Text>
+                <Text style={styles.primaryBtnText}>Sign up to Mediq</Text>
               )}
             </TouchableOpacity>
 
-            <View style={styles.trustBadgeRow}>
-              <Text style={[styles.trustBadgeText, { color: colors.textSecondary }]}>
-                🔒 Data Privacy Protected • 100% NABL Accredited Labs
+            {/* Already have an account row */}
+            <View style={styles.registerRow}>
+              <Text style={[styles.registerText, { color: colors.text }]}>
+                Already have an account?{' '}
               </Text>
+              <Link href="/(auth)/login" asChild>
+                <TouchableOpacity>
+                  <Text style={[styles.registerLink, { color: colors.primary }]}>Sign In</Text>
+                </TouchableOpacity>
+              </Link>
             </View>
-          </View>
 
-          {/* Footer */}
-          <View style={styles.footer}>
-            <Text style={[styles.footerText, { color: colors.textSecondary }]}>
-              Already have an account?{' '}
-            </Text>
-            <Link href="/(auth)/login" asChild>
-              <TouchableOpacity>
-                <Text style={[styles.footerLink, { color: colors.primary }]}>Sign In</Text>
-              </TouchableOpacity>
-            </Link>
+            {/* Divider "or with" */}
+            <View style={styles.dividerRow}>
+              <Text style={[styles.dividerText, { color: colors.textMuted }]}>or with</Text>
+            </View>
+
+            {/* Social Buttons */}
+            <TouchableOpacity
+              style={[
+                styles.socialBtn,
+                styles.googleBtn,
+                { borderColor: colors.border, backgroundColor: colors.card },
+              ]}
+              activeOpacity={0.8}
+            >
+              <Text style={[styles.googleBtnText, { color: colors.text }]}>Sign up with Google</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.socialBtn,
+                styles.appleBtn,
+                { backgroundColor: isDark ? '#000000' : '#2C2C2E' },
+              ]}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.appleBtnText}>Sign up with IOS</Text>
+            </TouchableOpacity>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -227,67 +295,151 @@ export default function RegisterScreen() {
   );
 }
 
-const makeStyles = (colors: ReturnType<typeof import('@/hooks/useTheme').useTheme>['colors']) =>
+const makeStyles = (colors: ReturnType<typeof useTheme>['colors'], isDark: boolean) =>
   StyleSheet.create({
     safe: { flex: 1 },
     flex: { flex: 1 },
     container: {
       flexGrow: 1,
-      paddingHorizontal: Spacing.four,
-      paddingVertical: Spacing.four,
-      gap: Spacing.three,
+      paddingHorizontal: 24,
+      paddingTop: Platform.OS === 'ios' ? 12 : 24,
+      paddingBottom: 36,
+      justifyContent: 'center',
     },
-    header: {
-      alignItems: 'center',
-      gap: 6,
-      marginBottom: Spacing.two,
-    },
-    logoIcon: {
-      width: 68,
-      height: 68,
-      borderRadius: Radius.xl,
+    logoRow: {
       alignItems: 'center',
       justifyContent: 'center',
+      marginBottom: 28,
+    },
+    titleSection: {
+      marginBottom: 24,
+    },
+    title: {
+      fontSize: 26,
+      fontWeight: '800',
+      letterSpacing: -0.4,
+      marginBottom: 8,
+    },
+    subtitle: {
+      fontSize: 14.5,
+      fontWeight: '400',
+      lineHeight: 20,
+    },
+    errorBanner: {
+      padding: 12,
+      borderRadius: 10,
+      marginBottom: 16,
+    },
+    errorBannerText: {
+      fontSize: 13,
+      fontWeight: '600',
+      textAlign: 'center',
+    },
+    formSection: {
+      gap: 16,
+    },
+    field: {
+      gap: 8,
+    },
+    label: {
+      fontSize: 14,
+      fontWeight: '600',
+    },
+    optionalText: {
+      fontWeight: '400',
+      fontSize: 12,
+      opacity: 0.7,
+    },
+    input: {
+      height: 52,
+      borderRadius: 12,
+      paddingHorizontal: 16,
+      fontSize: 14.5,
+      fontStyle: 'italic',
+      borderWidth: 1.5,
+    },
+    passwordContainer: {
+      height: 52,
+      borderRadius: 12,
+      paddingHorizontal: 16,
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderWidth: 1.5,
+    },
+    passwordInput: {
+      flex: 1,
+      height: '100%',
+      fontSize: 14.5,
+    },
+    eyeBtn: {
+      padding: 6,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    eyeIcon: {
+      fontSize: 16,
+      opacity: 0.6,
+    },
+    fieldError: {
+      fontSize: 12,
+      fontWeight: '600',
+      marginTop: 2,
+    },
+    primaryBtn: {
+      height: 54,
+      borderRadius: 27,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: 8,
+    },
+    btnDisabled: {
+      opacity: 0.7,
+    },
+    primaryBtnText: {
+      color: '#FFFFFF',
+      fontSize: 16,
+      fontWeight: '700',
+    },
+    registerRow: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginTop: 6,
       marginBottom: 4,
     },
-    logoEmoji: { fontSize: 34 },
-    appName: {
-      fontSize: 12,
-      fontWeight: '800',
-      letterSpacing: 1.5,
+    registerText: {
+      fontSize: 13.5,
+      fontWeight: '400',
     },
-    title: { fontSize: 26, fontWeight: '800', letterSpacing: -0.5 },
-    subtitle: { fontSize: 13.5, textAlign: 'center', maxWidth: 280 },
-    formCard: {
-      borderRadius: Radius.xl,
-      padding: Spacing.four,
-      borderWidth: 1,
-      gap: Spacing.three,
+    registerLink: {
+      fontSize: 13.5,
+      fontWeight: '600',
     },
-    field: { gap: 6 },
-    label: { fontSize: 13.5, fontWeight: '700' },
-    input: {
-      borderWidth: 1.5,
-      borderRadius: Radius.lg,
-      paddingHorizontal: Spacing.three,
-      paddingVertical: 12,
-      fontSize: 15,
-    },
-    fieldError: { fontSize: 12, marginTop: 2, fontWeight: '600' },
-    errorBanner: { padding: Spacing.three, borderRadius: Radius.md },
-    errorBannerText: { fontSize: 13, fontWeight: '600', textAlign: 'center' },
-    btn: {
-      paddingVertical: 14,
-      borderRadius: Radius.lg,
+    dividerRow: {
       alignItems: 'center',
-      marginTop: 4,
+      marginVertical: 4,
     },
-    btnDisabled: { opacity: 0.6 },
-    btnText: { color: '#fff', fontSize: 15, fontWeight: '800' },
-    trustBadgeRow: { alignItems: 'center', marginTop: 4 },
-    trustBadgeText: { fontSize: 11, fontWeight: '500' },
-    footer: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
-    footerText: { fontSize: 14 },
-    footerLink: { fontSize: 14, fontWeight: '700' },
+    dividerText: {
+      fontSize: 13,
+      fontWeight: '400',
+    },
+    socialBtn: {
+      height: 52,
+      borderRadius: 26,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    googleBtn: {
+      borderWidth: 1,
+    },
+    googleBtnText: {
+      fontSize: 15,
+      fontWeight: '500',
+    },
+    appleBtn: {},
+    appleBtnText: {
+      color: '#FFFFFF',
+      fontSize: 15,
+      fontWeight: '500',
+    },
   });
-
