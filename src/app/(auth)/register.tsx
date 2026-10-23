@@ -1,5 +1,10 @@
+import { MedieLogo } from '@/components/medie-logo';
+import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/hooks/useTheme';
+import { ApiError } from '@/lib/api';
+import AntDesign from '@expo/vector-icons/AntDesign';
 import { Link, router } from 'expo-router';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -12,11 +17,6 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-import { ApiError } from '@/lib/api';
-import { useAuth } from '@/context/AuthContext';
-import { useTheme } from '@/hooks/useTheme';
-import { MediqLogo } from '@/components/mediq-logo';
 
 type FieldErrors = {
   name?: string;
@@ -88,7 +88,7 @@ export default function RegisterScreen() {
         >
           {/* Top Logo */}
           <View style={styles.logoRow}>
-            <MediqLogo size="md" />
+            <MedieLogo size="md" />
           </View>
 
           {/* Heading */}
@@ -224,7 +224,11 @@ export default function RegisterScreen() {
                   accessibilityRole="button"
                   accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  <Text style={styles.eyeIcon}>{showPassword ? '👁️' : '👁️'}</Text>
+                  <AntDesign
+                    name={showPassword ? 'eye-invisible' : 'eye'}
+                    size={18}
+                    color={colors.textSecondary}
+                  />
                 </TouchableOpacity>
               </View>
               {errors.password && <Text style={[styles.fieldError, { color: colors.error }]}>{errors.password}</Text>}
@@ -239,13 +243,13 @@ export default function RegisterScreen() {
               ]}
               onPress={handleRegister}
               disabled={isLoading}
-              accessibilityLabel="Sign up to Mediq"
+              accessibilityLabel="Sign up to Medie"
               accessibilityRole="button"
             >
               {isLoading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.primaryBtnText}>Sign up to Mediq</Text>
+                <Text style={styles.primaryBtnText}>Sign up to Medie</Text>
               )}
             </TouchableOpacity>
 
@@ -276,17 +280,6 @@ export default function RegisterScreen() {
               activeOpacity={0.8}
             >
               <Text style={[styles.googleBtnText, { color: colors.text }]}>Sign up with Google</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.socialBtn,
-                styles.appleBtn,
-                { backgroundColor: isDark ? '#000000' : '#2C2C2E' },
-              ]}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.appleBtnText}>Sign up with IOS</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -319,11 +312,13 @@ const makeStyles = (colors: ReturnType<typeof useTheme>['colors'], isDark: boole
       fontWeight: '800',
       letterSpacing: -0.4,
       marginBottom: 8,
+      textAlign: 'center',
     },
     subtitle: {
       fontSize: 14.5,
       fontWeight: '400',
       lineHeight: 20,
+      textAlign: 'center',
     },
     errorBanner: {
       padding: 12,

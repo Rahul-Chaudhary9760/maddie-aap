@@ -1,21 +1,21 @@
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/context/AuthContext';
 
-import { useTheme } from '@/hooks/useTheme';
 import { Radius, Shadow, Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/useTheme';
 
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
@@ -36,14 +36,14 @@ export default function ProfileScreen() {
 
   const handleLogout = () => {
     if (Platform.OS === 'web') {
-      const confirmed = typeof window !== 'undefined' ? window.confirm('Are you sure you want to sign out of your Mediq account?') : true;
+      const confirmed = typeof window !== 'undefined' ? window.confirm('Are you sure you want to sign out of your Medie account?') : true;
       if (confirmed) {
         executeLogout();
       }
     } else {
       Alert.alert(
         'Sign Out',
-        'Are you sure you want to sign out of your Mediq account?',
+        'Are you sure you want to sign out of your Medie account?',
         [
           { text: 'Cancel', style: 'cancel' },
           {
@@ -155,7 +155,7 @@ export default function ProfileScreen() {
           <TouchableOpacity
             style={styles.menuRow}
             onPress={() => {
-              Alert.alert('Customer Care', 'Need help with sample collection or reports?\n\nEmail: support@mediqhealth.com\nHelpline: 1800-123-MEDIQ (24x7)');
+              Alert.alert('Customer Care', 'Need help with sample collection or reports?\n\nEmail: support@mediehealth.com\nHelpline: 1800-123-MEDIE (24x7)');
             }}
             accessibilityRole="button"
           >
@@ -175,7 +175,7 @@ export default function ProfileScreen() {
             style={styles.menuRow}
             onPress={() => {
               Alert.alert(
-                'Mediq Healthcare Safety',
+                'Medie Healthcare Safety',
                 'All tests are conducted by certified phlebotomists using sterilized single-use sealed vacutainers and processed in NABL accredited partner labs.',
               );
             }}
@@ -208,7 +208,7 @@ export default function ProfileScreen() {
         </TouchableOpacity>
 
         <Text style={[styles.appVersion, { color: colors.textMuted }]}>
-          Mediq Healthcare App • v1.0.0 (Production Build)
+          Medie Healthcare App • v1.0.0 (Production Build)
         </Text>
       </ScrollView>
     </SafeAreaView>

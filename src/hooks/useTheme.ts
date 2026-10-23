@@ -1,11 +1,11 @@
 /**
  * useTheme — returns Colors for current color scheme
- * Styled for Mediq healthcare design system (clean, light theme)
+ * Styled for Medie healthcare design system (clean, light theme)
  */
-import { useColorScheme } from 'react-native';
 import { Colors } from '@/constants/theme';
+import { useColorScheme } from 'react-native';
 
-// Mediq UI design system is a clean light-first theme (#FFFFFF)
+// Medie UI design system is a clean light-first theme (#FFFFFF)
 export const FORCE_LIGHT_THEME = true;
 
 export function useTheme() {

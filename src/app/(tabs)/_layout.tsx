@@ -1,18 +1,19 @@
+import { Radius, Shadow } from '@/constants/theme';
+import { useTheme } from '@/hooks/useTheme';
+import AntDesign from '@expo/vector-icons/AntDesign';
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 
-import { useTheme } from '@/hooks/useTheme';
-import { Radius, Shadow } from '@/constants/theme';
-
 type TabIconProps = {
   focused: boolean;
   label: string;
-  emoji: string;
+  emoji?: string;
+  icon?: React.ReactNode;
   colors: ReturnType<typeof useTheme>['colors'];
 };
 
-function TabIcon({ focused, label, emoji, colors }: TabIconProps) {
+function TabIcon({ focused, label, emoji, icon, colors }: TabIconProps) {
   return (
     <View style={styles.tabItem}>
       <View
@@ -24,7 +25,11 @@ function TabIcon({ focused, label, emoji, colors }: TabIconProps) {
           },
         ]}
       >
-        <Text style={[styles.emoji, { opacity: focused ? 1 : 0.65 }]}>{emoji}</Text>
+        {icon ? (
+          icon
+        ) : (
+          <Text style={[styles.emoji, { opacity: focused ? 1 : 0.65 }]}>{emoji}</Text>
+        )}
       </View>
       <Text
         style={[
@@ -64,7 +69,18 @@ export default function TabsLayout() {
         name="index"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} label="Home" emoji="🏠" colors={colors} />
+            <TabIcon
+              focused={focused}
+              label="Home"
+              icon={
+                <AntDesign
+                  name="home"
+                  size={20}
+                  color={focused ? colors.primary : colors.textSecondary}
+                />
+              }
+              colors={colors}
+            />
           ),
         }}
       />
@@ -72,7 +88,18 @@ export default function TabsLayout() {
         name="tests"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} label="Lab Tests" emoji="🧪" colors={colors} />
+            <TabIcon
+              focused={focused}
+              label="Lab Tests"
+              icon={
+                <AntDesign
+                  name="experiment"
+                  size={20}
+                  color={focused ? colors.primary : colors.textSecondary}
+                />
+              }
+              colors={colors}
+            />
           ),
         }}
       />
@@ -80,7 +107,18 @@ export default function TabsLayout() {
         name="bookings"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} label="Bookings" emoji="📋" colors={colors} />
+            <TabIcon
+              focused={focused}
+              label="Bookings"
+              icon={
+                <AntDesign
+                  name="carry-out"
+                  size={20}
+                  color={focused ? colors.primary : colors.textSecondary}
+                />
+              }
+              colors={colors}
+            />
           ),
         }}
       />
@@ -88,7 +126,18 @@ export default function TabsLayout() {
         name="profile"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} label="Profile" emoji="👤" colors={colors} />
+            <TabIcon
+              focused={focused}
+              label="Profile"
+              icon={
+                <AntDesign
+                  name="user"
+                  size={20}
+                  color={focused ? colors.primary : colors.textSecondary}
+                />
+              }
+              colors={colors}
+            />
           ),
         }}
       />

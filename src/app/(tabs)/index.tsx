@@ -1,20 +1,20 @@
 import { router } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { getCategoryMeta, Radius, Shadow, Spacing } from '@/constants/theme';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/hooks/useTheme';
 import { testsService } from '@/services';
-import { getCategoryMeta, Radius, Shadow, Spacing } from '@/constants/theme';
 import type { MedicalTest } from '@/types';
 
 const POPULAR_CATEGORIES = [
@@ -195,7 +195,7 @@ export default function HomeScreen() {
 
         {/* Trust & Quality Strip */}
         <View style={[styles.trustSection, { backgroundColor: colors.card, borderColor: colors.border }, Shadow.sm]}>
-          <Text style={[styles.trustHeading, { color: colors.text }]}>Why Mediq Healthcare?</Text>
+          <Text style={[styles.trustHeading, { color: colors.text }]}>Why Medie Healthcare?</Text>
           <View style={styles.trustGrid}>
             {TRUST_PILLARS.map((pillar) => (
               <View key={pillar.title} style={styles.trustItem}>
